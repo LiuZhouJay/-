@@ -259,7 +259,17 @@
         .code-display {
             margin-right: 10px;
         }
-        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            margin: 0 10px;
+        }
+                
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -312,6 +322,11 @@
                 <button id="searchButton" class="searchButton">搜索</button>
             </div>
             <div id="searchResults" class="searchResults"></div>
+            <div id="pagination" class="pagination">
+                <button id="prevPage" disabled>上一页</button>
+                <span id="pageInfo"></span>
+                <button id="nextPage">下一页</button>
+            </div>
         </div>
     </div>
 
@@ -616,7 +631,6 @@
             fetch(`search_code.php?searchInput=${searchInput}`)
             .then(response => response.json())
             .then(data => {
-                console.log("data",data);
                 if (data.status === 'success') {
                     const searchResultsContainer = document.getElementById('searchResults');
                     searchResultsContainer.innerHTML = '';
@@ -624,61 +638,93 @@
                     if (data.data.length === 0) {
                         searchResultsContainer.innerHTML = '<p>没有找到匹配的结果</p>';
                     } else {
-                        data.data.forEach(result => {
-                            const resultElement = document.createElement('div');
-                            resultElement.innerHTML = `
-                                <p><strong>编码:</strong> ${result.code.split('-')[0].replace(/-/g, '')} <strong>类型:</strong> ${result.type} ${result.sub_type ? '<strong>子类型:</strong> ' + result.sub_type : ''}</p>
-                                <p><strong>属性:</strong></p>   
-                                <table border="1" cellpadding="3" cellspacing="0">
-                                    <thead>
-                                    <tr>
-                                        ${result.properties.map((property, index) => {
-                                            const [key, value] = property.split(':');
-                                            return `<th><strong>${key}</strong></th> `;
-                                        }).join('')}
-                                    </tr>
-                                    <thead>
-                                    <tbody>
-                                    <tr>
-                                        ${result.properties.map((property, index) => {
-                                            const [key, value] = property.split(':');
-                                            return `<td>${value}</td>`;
-                                        }).join('')}
-                                    </tr>
-                                    </tbody>
-                                </table>
-                                <br>
-                                <div class="action-buttons">
-                                    <button class="delete-button" data-code="${result.code}">删除</button>
-                                </div>
-                                <hr>
-                            `;
-                            searchResultsContainer.appendChild(resultElement);
-                        });
-                        // 添加删除按钮的事件监听器
-                        document.querySelectorAll('.delete-button').forEach(button => {
-                            button.addEventListener('click', function() {
-                                const code = this.getAttribute('data-code');
-                                if (confirm('确认删除此编码信息吗？')) {
-                                    fetch(`delete_code.php?code=${code}`, {
-                                        method: 'DELETE'
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (data.status === 'success') {
-                                            alert('删除成功');
-                                            // 重新加载搜索结果
-                                            document.getElementById('searchButton').click();
-                                        } else {
-                                            alert(data.message);
-                                        }
-                                    })
-                                    .catch(error => {
-                                        console.error('Error:', error);
-                                        alert('删除编码时出错');
-                                    });
-                                }
+                        let currentPage = 1;
+                        const resultsPerPage = 5;
+                        const totalPages = Math.ceil(data.data.length / resultsPerPage);
+
+                        function displayResults(page) {
+                            searchResultsContainer.innerHTML = '';
+                            const start = (page - 1) * resultsPerPage;
+                            const end = start + resultsPerPage;
+                            const pageResults = data.data.slice(start, end);
+
+                            pageResults.forEach(result => {
+                                const resultElement = document.createElement('div');
+                                resultElement.innerHTML = `
+                                    <p><strong>编码:</strong> ${result.code.split('-')[0].replace(/-/g, '')} <strong>类型:</strong> ${result.type} ${result.sub_type ? '<strong>子类型:</strong> ' + result.sub_type : ''}</p>
+                                    <p><strong>属性:</strong></p>   
+                                    <table border="1" cellpadding="3" cellspacing="0">
+                                        <thead>
+                                        <tr>
+                                            ${result.properties.map((property, index) => {
+                                                const [key, value] = property.split(':');
+                                                return `<th><strong>${key}</strong></th> `;
+                                            }).join('')}
+                                        </tr>
+                                        <thead>
+                                        <tbody>
+                                        <tr>
+                                            ${result.properties.map((property, index) => {
+                                                const [key, value] = property.split(':');
+                                                return `<td>${value}</td>`;
+                                            }).join('')}
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <br>
+                                    <div class="action-buttons">
+                                        <button class="delete-button" data-code="${result.code}">删除</button>
+                                    </div>
+                                    <hr>
+                                `;
+                                searchResultsContainer.appendChild(resultElement);
                             });
+
+                            // 添加删除按钮的事件监听器
+                            document.querySelectorAll('.delete-button').forEach(button => {
+                                button.addEventListener('click', function() {
+                                    const code = this.getAttribute('data-code');
+                                    if (confirm('确认删除此编码信息吗？')) {
+                                        fetch(`delete_code.php?code=${code}`, {
+                                            method: 'DELETE'
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.status === 'success') {
+                                                alert('删除成功');
+                                                // 重新加载搜索结果
+                                                document.getElementById('searchButton').click();
+                                            } else {
+                                                alert(data.message);
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Error:', error);
+                                            alert('删除编码时出错');
+                                        });
+                                    }
+                                });
+                            });
+
+                            document.getElementById('pageInfo').textContent = `第 ${page} 页，共 ${totalPages} 页`;
+                            document.getElementById('prevPage').disabled = page === 1;
+                            document.getElementById('nextPage').disabled = page === totalPages;
+                        }
+
+                        displayResults(currentPage);
+
+                        document.getElementById('prevPage').addEventListener('click', function() {
+                            if (currentPage > 1) {
+                                currentPage--;
+                                displayResults(currentPage);
+                            }
+                        });
+
+                        document.getElementById('nextPage').addEventListener('click', function() {
+                            if (currentPage < totalPages) {
+                                currentPage++;
+                                displayResults(currentPage);
+                            }
                         });
                     }
                 } else {
