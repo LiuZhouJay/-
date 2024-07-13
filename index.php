@@ -42,7 +42,8 @@
 
         .main-content {
             display: flex;
-            justify-content: space-between;
+            /* align-items: center; */
+            justify-content: center;
             width: calc(100% - 24%); /* 改为相对单位 */
             margin-left: 22%; /* 改为相对单位 */
             margin-top: 100px; /* 标题的高度 */
@@ -52,19 +53,19 @@
         }
 
         .input-container {
-            display: flex;
+            display: none;
             flex-direction: row;
             flex-wrap: wrap;
             align-items: flex-start;
             justify-content: flex-start;
             padding: 2%; /* 改为相对单位 */
             box-sizing: border-box;
-            width: 48%; /* 改为50%宽度 */
+            width: 50%; /* 改为50%宽度 */
             position: relative;
             border: 1px solid #ccc;
             border-radius: 10px 10px 10px 10px;
             box-shadow: -7px 7px 5px 0 rgba(0, 0, 0, 0.5),1px -1px 1px 0 rgba(0, 0, 0, 0.2);
-            height: 60%; /* 设置默认高度为现在的一半 */
+            height: 80%; /* 设置默认高度为现在的一半 */
             overflow-y: auto; /* 添加垂直滚动条 */
             margin-left: 2%; /* 添加左侧间距 */
             margin-top: 6%; /* 增加顶部间距 */
@@ -77,12 +78,12 @@
             justify-content: flex-start;
             padding: 2%; /* 改为相对单位 */
             box-sizing: border-box;
-            width: 48%; /* 改为50%宽度 */
+            width: 50%; /* 改为50%宽度 */
             position: relative;
             border: 1px solid #ccc;
             border-radius: 10px 10px 10px 10px;
             box-shadow: -7px 7px 5px 0 rgba(0, 0, 0, 0.5),1px -1px 1px 0 rgba(0, 0, 0, 0.2);
-            height: 60%; /* 保持现有高度 */
+            height: 80%; /* 保持现有高度 */
             overflow-y: auto; /* 添加垂直滚动条 */
             margin-left: 2%; /* 添加左侧间距 */
             margin-top: 6%; /* 增加顶部间距 */
@@ -367,6 +368,7 @@
                 if (components[type].length === 0) {
                     // 处理没有二级列表的情况
                     const inputContainer = document.querySelector('.input-container');
+                    inputContainer.style.display = 'flex';
                     while (inputContainer.firstChild) {
                         inputContainer.removeChild(inputContainer.firstChild);
                     }
@@ -438,6 +440,7 @@
                 item.textContent = subType;
                 item.addEventListener('click', function() {
                     const inputContainer = document.querySelector('.input-container');
+                    inputContainer.style.display = 'flex';
                     const inputValue = this.textContent;
                     while (inputContainer.firstChild) {
                         inputContainer.removeChild(inputContainer.firstChild);
@@ -651,8 +654,7 @@
                             pageResults.forEach(result => {
                                 const resultElement = document.createElement('div');
                                 resultElement.innerHTML = `
-                                    <p><strong>编码:</strong> ${result.code.split('-')[0].replace(/-/g, '')} <strong>类型:</strong> ${result.type} ${result.sub_type ? '<strong>子类型:</strong> ' + result.sub_type : ''}</p>
-                                    <p><strong>属性:</strong></p>   
+                                    <p><strong>编码:</strong> ${result.code.split('-')[0].replace(/-/g, '')} <strong>类型:</strong> ${result.type} ${result.sub_type ? '<strong>子类型:</strong> ' + result.sub_type : ''}</p> 
                                     <table border="1" cellpadding="3" cellspacing="0">
                                         <thead>
                                         <tr>
