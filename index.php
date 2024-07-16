@@ -630,7 +630,25 @@
         });
 
         document.getElementById('searchButton').addEventListener('click', function() {
-            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const searchInput = document.getElementById('searchInput').value.trim();
+
+            // 检查搜索框是否为空
+            if (searchInput === '') {
+                alert('请输入正确的搜索内容,比如:10欧、10uf、电阻');
+                return;
+            }
+
+            // 检查搜索内容是否为纯数字
+            if (/^\d+$/.test(searchInput)) {
+                alert('请输入正确的搜索内容,比如:10欧、10uf、电阻');
+                return;
+            }
+
+            // 检查搜索内容是否包含汉字或数字加单位
+            if (!/[\u4e00-\u9fa5]/.test(searchInput) && !/^\d+[a-zA-Z]+$/.test(searchInput)) {
+                alert('请输入正确的搜索内容,比如:10欧、10uf、电阻');
+                return;
+            }
 
             // 发送搜索请求到后端API
             fetch(`search_code.php?searchInput=${searchInput}`)
