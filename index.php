@@ -42,17 +42,16 @@
 
         .main-content {
             display: flex;
-            /* align-items: center; */
             justify-content: center;
             width: calc(100% - 24%); /* 改为相对单位 */
             margin-left: 17%; /* 改为相对单位 */
             margin-top: 100px; /* 标题的高度 */
             height: calc(100% - 100px); /* 确保主内容区域高度 */
             flex-direction: row; /* 改为水平布局 */
-            box-shadow: -7px 7px 5px 0 rgba(0, 0, 0, 0.5),1px -1px 1px 0 rgba(0, 0, 0, 0.2);
-            border-radius: 10px 10px 10px 10px;
-            overflow: hidden; /* 防止主内容区域滚动 */
+            box-shadow: -7px 7px 5px 0 rgba(0, 0, 0, 0.5), 1px -1px 1px 0 rgba(0, 0, 0, 0.2);
+            position: relative; /* 新增，用于固定翻页按钮 */
         }
+
 
         .input-container {
             display: none;
@@ -87,6 +86,40 @@
             margin-top: 0%; /* 增加顶部间距 */
         }
 
+        .searchResults {
+            margin-top: 20px;
+            width: 100%; /* 使表格宽度与容器一致 */
+            overflow-x: auto; /* 允许水平滚动 */
+        }
+
+        .searchResults table {
+            width: 100%; /* 使表格宽度与容器一致 */
+            border-collapse: collapse; /* 合并边框 */
+        }
+
+        .searchResults th, .searchResults td {
+            border: 1px solid #ddd; /* 添加边框 */
+            padding: 8px; /* 添加内边距 */
+            text-align: left; /* 左对齐 */
+        }
+
+        .searchResults th {
+            background-color: #f2f2f2; /* 表头背景色 */
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            position: absolute; /* 固定位置 */
+            bottom: 10px; /* 固定在底部 */
+            width: 100%; /* 宽度与容器一致 */
+        }
+
+        .pagination button {
+            margin: 0 10px;
+        }
         .search-header {
             display: flex;
             justify-content: space-between;
@@ -257,16 +290,6 @@
 
         .code-display {
             margin-right: 10px;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        .pagination button {
-            margin: 0 10px;
         }
                 
         @media (max-width: 768px) {
@@ -662,7 +685,7 @@
                         searchResultsContainer.innerHTML = '<p>没有找到匹配的结果</p>';
                     } else {
                         let currentPage = 1;
-                        const resultsPerPage = 5;
+                        const resultsPerPage = 15;
                         const totalPages = Math.ceil(data.data.length / resultsPerPage);
 
                         function displayResults(page) {
@@ -671,36 +694,65 @@
                             const end = start + resultsPerPage;
                             const pageResults = data.data.slice(start, end);
 
+                            const table = document.createElement('table');
+                            table.border = '1';
+                            table.cellPadding = '3';
+                            table.cellSpacing = '0';
+
+                            // 创建表头
+                            const thead = document.createElement('thead');
+                            const headerRow = document.createElement('tr');
+
+                            // 获取所有属性
+                            const allProperties = new Set();
                             pageResults.forEach(result => {
-                                const resultElement = document.createElement('div');
-                                resultElement.innerHTML = `
-                                    <p><strong>编码:</strong> ${result.code.split('-')[0].replace(/-/g, '')} <strong>类型:</strong> ${result.type} ${result.sub_type ? '<strong>子类型:</strong> ' + result.sub_type : ''}</p> 
-                                    <table border="1" cellpadding="3" cellspacing="0">
-                                        <thead>
-                                        <tr>
-                                            ${result.properties.map((property, index) => {
-                                                const [key, value] = property.split(':');
-                                                return `<th><strong>${key}</strong></th> `;
-                                            }).join('')}
-                                        </tr>
-                                        <thead>
-                                        <tbody>
-                                        <tr>
-                                            ${result.properties.map((property, index) => {
-                                                const [key, value] = property.split(':');
-                                                return `<td>${value}</td>`;
-                                            }).join('')}
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                    <br>
-                                    <div class="action-buttons">
-                                        <button class="delete-button" data-code="${result.code}">删除</button>
-                                    </div>
-                                    <hr>
-                                `;
-                                searchResultsContainer.appendChild(resultElement);
+                                result.properties.forEach(property => {
+                                    const [key] = property.split(':');
+                                    allProperties.add(key);
+                                });
                             });
+
+                            // 添加编码列
+                            headerRow.innerHTML += `<th><strong>编码</strong></th>`;
+
+                            // 添加属性列
+                            allProperties.forEach(property => {
+                                headerRow.innerHTML += `<th><strong>${property}</strong></th>`;
+                            });
+
+                            // 添加操作列
+                            headerRow.innerHTML += `<th><strong>操作</strong></th>`;
+
+                            thead.appendChild(headerRow);
+                            table.appendChild(thead);
+
+                            // 创建表体
+                            const tbody = document.createElement('tbody');
+                            pageResults.forEach(result => {
+                                const row = document.createElement('tr');
+
+                                // 添加编码
+                                row.innerHTML += `<td>${result.code.split('-')[0].replace(/-/g, '')}</td>`;
+
+                                // 添加属性
+                                allProperties.forEach(property => {
+                                    const propertyValue = result.properties.find(p => p.startsWith(`${property}:`));
+                                    if (propertyValue) {
+                                        const [, value] = propertyValue.split(':');
+                                        row.innerHTML += `<td>${value}</td>`;
+                                    } else {
+                                        row.innerHTML += `<td></td>`;
+                                    }
+                                });
+
+                                // 添加删除按钮
+                                row.innerHTML += `<td><button class="delete-button" data-code="${result.code}">删除</button></td>`;
+
+                                tbody.appendChild(row);
+                            });
+                            table.appendChild(tbody);
+
+                            searchResultsContainer.appendChild(table);
 
                             // 添加删除按钮的事件监听器
                             document.querySelectorAll('.delete-button').forEach(button => {
