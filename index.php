@@ -45,10 +45,12 @@
             /* align-items: center; */
             justify-content: center;
             width: calc(100% - 24%); /* 改为相对单位 */
-            margin-left: 22%; /* 改为相对单位 */
+            margin-left: 17%; /* 改为相对单位 */
             margin-top: 100px; /* 标题的高度 */
-            height: calc(100% - 60px); /* 确保主内容区域高度 */
+            height: calc(100% - 100px); /* 确保主内容区域高度 */
             flex-direction: row; /* 改为水平布局 */
+            box-shadow: -7px 7px 5px 0 rgba(0, 0, 0, 0.5),1px -1px 1px 0 rgba(0, 0, 0, 0.2);
+            border-radius: 10px 10px 10px 10px;
             overflow: hidden; /* 防止主内容区域滚动 */
         }
 
@@ -60,15 +62,13 @@
             justify-content: flex-start;
             padding: 2%; /* 改为相对单位 */
             box-sizing: border-box;
-            width: 50%; /* 改为50%宽度 */
+            width: 100%; /* 改为50%宽度 */
             position: relative;
             border: 1px solid #ccc;
-            border-radius: 10px 10px 10px 10px;
-            box-shadow: -7px 7px 5px 0 rgba(0, 0, 0, 0.5),1px -1px 1px 0 rgba(0, 0, 0, 0.2);
-            height: 80%; /* 设置默认高度为现在的一半 */
+            height: 100%; /* 设置默认高度为现在的一半 */
             overflow-y: auto; /* 添加垂直滚动条 */
-            margin-left: 2%; /* 添加左侧间距 */
-            margin-top: 6%; /* 增加顶部间距 */
+            margin-left: 0%; /* 添加左侧间距 */
+            margin-top: 0%; /* 增加顶部间距 */
             /* gap: 10px; 设置间距 */
         }
         .search-container {
@@ -78,15 +78,13 @@
             justify-content: flex-start;
             padding: 2%; /* 改为相对单位 */
             box-sizing: border-box;
-            width: 50%; /* 改为50%宽度 */
+            width: 100%; /* 改为50%宽度 */
             position: relative;
             border: 1px solid #ccc;
-            border-radius: 10px 10px 10px 10px;
-            box-shadow: -7px 7px 5px 0 rgba(0, 0, 0, 0.5),1px -1px 1px 0 rgba(0, 0, 0, 0.2);
-            height: 80%; /* 保持现有高度 */
+            height: 100%; /* 保持现有高度 */
             overflow-y: auto; /* 添加垂直滚动条 */
-            margin-left: 2%; /* 添加左侧间距 */
-            margin-top: 6%; /* 增加顶部间距 */
+            margin-left: 0%; /* 添加左侧间距 */
+            margin-top: 0%; /* 增加顶部间距 */
         }
 
         .search-header {
@@ -319,7 +317,7 @@
 
         <div class="search-container">
             <div class="search-header">
-                <input type="text" id="searchInput" placeholder="查询已经存储的编码信息，输入编号或参数信息">
+                <input type="text" id="searchInput" placeholder="输入参数信息进行查询">
                 <button id="searchButton" class="searchButton">搜索</button>
             </div>
             <div id="searchResults" class="searchResults"></div>
@@ -368,6 +366,8 @@
                 if (components[type].length === 0) {
                     // 处理没有二级列表的情况
                     const inputContainer = document.querySelector('.input-container');
+                    const searchContainer = document.querySelector('.search-container');
+                    searchContainer.style.display = 'none';
                     inputContainer.style.display = 'flex';
                     while (inputContainer.firstChild) {
                         inputContainer.removeChild(inputContainer.firstChild);
@@ -440,6 +440,8 @@
                 item.textContent = subType;
                 item.addEventListener('click', function() {
                     const inputContainer = document.querySelector('.input-container');
+                    const searchContainer = document.querySelector('.search-container');
+                    searchContainer.style.display = 'none';
                     inputContainer.style.display = 'flex';
                     const inputValue = this.textContent;
                     while (inputContainer.firstChild) {
