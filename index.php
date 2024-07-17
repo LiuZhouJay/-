@@ -14,11 +14,12 @@
             height: 100vh;
             overflow: hidden; /* 防止整个页面滚动 */
         }
-
-        .text-center {
-            text-align: center;
+        .head-class{
             width: 100%;
             position: fixed;
+            height: 10%;
+            /* display: flex; */
+            /* justify-content: center; */
             top: 0;
             background-color: white;
             z-index: 1000;
@@ -26,12 +27,36 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
+        .text-center {
+            text-align: center; 
+        }
+        .toggle-buttons
+        {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 8%;
+            height: 10%;
+            position: sticky;
+            top: 0%;
+            left: 80%;
+
+            /* margin-left:60%; */
+        }
+        .headbutton{
+            font: optional;
+            font-size: 20px;
+            color: #007bff;
+            background: none;
+            border: none;
+        }
+
         .sidebar {
             position: fixed;
-            top: 60px; /* 标题的高度 */
+            top: 10%; /* 标题的高度 */
             left: 0;
             width: 20%; /* 改为相对单位 */
-            height: calc(100% - 60px);
+            height: calc(100% - 10%);
             background-color: #f8f9fa;
             padding: 2%; /* 改为相对单位 */
             box-sizing: border-box;
@@ -45,11 +70,12 @@
             justify-content: center;
             width: calc(100% - 24%); /* 改为相对单位 */
             margin-left: 17%; /* 改为相对单位 */
-            margin-top: 100px; /* 标题的高度 */
-            height: calc(100% - 100px); /* 确保主内容区域高度 */
+            top: 12%; /* 标题的高度 */
+            height: calc(87%); /* 确保主内容区域高度 */
             flex-direction: row; /* 改为水平布局 */
             box-shadow: -7px 7px 5px 0 rgba(0, 0, 0, 0.5), 1px -1px 1px 0 rgba(0, 0, 0, 0.2);
             position: relative; /* 新增，用于固定翻页按钮 */
+            overflow-y: hidden;
         }
 
 
@@ -65,7 +91,7 @@
             position: relative;
             border: 1px solid #ccc;
             height: 100%; /* 设置默认高度为现在的一半 */
-            overflow-y: auto; /* 添加垂直滚动条 */
+            overflow-y: hidden; /* 添加垂直滚动条 */
             margin-left: 0%; /* 添加左侧间距 */
             margin-top: 0%; /* 增加顶部间距 */
             /* gap: 10px; 设置间距 */
@@ -81,22 +107,27 @@
             position: relative;
             border: 1px solid #ccc;
             height: 100%; /* 保持现有高度 */
-            overflow-y: auto; /* 添加垂直滚动条 */
+            overflow-y: hidden; /* 添加垂直滚动条 */
+            overflow-x: hidden; /* 添加垂直滚动条 */
             margin-left: 0%; /* 添加左侧间距 */
             margin-top: 0%; /* 增加顶部间距 */
         }
-
         .searchResults {
             margin-top: 20px;
-            width: 100%; /* 使表格宽度与容器一致 */
-            overflow-x: auto; /* 允许水平滚动 */
+            text-align: left; /* 确保搜索结果靠左对齐 */
+            width: 100%;
+            /* background-color: #f0f0f0; 添加背景颜色 */
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            max-height: calc(100vh - 180px); /* 设置最大高度 */
         }
 
         .searchResults table {
             width: 100%; /* 使表格宽度与容器一致 */
             border-collapse: collapse; /* 合并边框 */
+            font-size: 0.7vw; /* 设置基础字体大小 */
         }
-
         .searchResults th, .searchResults td {
             border: 1px solid #ddd; /* 添加边框 */
             padding: 8px; /* 添加内边距 */
@@ -160,16 +191,6 @@
 
         .search-header button:hover {
             background-color: #0056b3; /* 悬停时的按钮背景颜色 */
-        }
-        .searchResults {
-            margin-top: 20px;
-            text-align: left; /* 确保搜索结果靠左对齐 */
-            width: 100%;
-            background-color: #f0f0f0; /* 添加背景颜色 */
-            padding: 10px;
-            box-sizing: border-box;
-            overflow-y: auto;
-            max-height: calc(100vh - 180px); /* 设置最大高度 */
         }
         .searchResults strong {
             font-weight: bold; /* 确保关键字加粗 */
@@ -316,10 +337,19 @@
                 margin-left: 30%;
             }
         }
+        
     </style>
 </head>
 <body>
-    <h1 class="text-center">物料信息编码生成</h1>
+    <div class = "head-class">
+        <div>
+            <h1 class="text-center">物料信息编码生成</h1>
+        </div>
+        <div class="toggle-buttons">
+            <button id="headinputButton" class = "headbutton">录入</button>
+            <button id="headsearchButton" class = "headbutton">搜索</button>
+        </div>
+    </div>
 
     <div class="sidebar">
         <div class="sidebar-header">
@@ -353,6 +383,15 @@
     </div>
 
     <script>
+        document.getElementById('headinputButton').addEventListener('click', function() {
+            document.querySelector('.input-container').style.display = 'flex';
+            document.querySelector('.search-container').style.display = 'none';
+        });
+
+        document.getElementById('headsearchButton').addEventListener('click', function() {
+            document.querySelector('.input-container').style.display = 'none';
+            document.querySelector('.search-container').style.display = 'flex';
+        });
         const components = {
             '电阻': ['贴片电阻', '插装电阻', '压敏电阻','热敏电阻','电位器'],
             '电容': ['陶瓷电容', '贴片电容'],
@@ -685,7 +724,7 @@
                         searchResultsContainer.innerHTML = '<p>没有找到匹配的结果</p>';
                     } else {
                         let currentPage = 1;
-                        const resultsPerPage = 15;
+                        const resultsPerPage = calculateResultsPerPage();
                         const totalPages = Math.ceil(data.data.length / resultsPerPage);
 
                         function displayResults(page) {
@@ -810,6 +849,14 @@
                 alert('搜索时出错');
             });
         });
+
+        function calculateResultsPerPage() {
+            const searchResultsContainer = document.querySelector('.search-container');
+            const searchheader = document.querySelector('.search-header');
+            const containerHeight = searchResultsContainer.clientHeight - 2 * searchheader.clientHeight; // 减去搜索框的高度;
+            const rowHeight = 40; // 假设每行高度为40px
+            return Math.floor(containerHeight / rowHeight);
+        }
 
         function generateCode(type, subType, properties, placeholders, recordNumber) {
             const typeCode = {
